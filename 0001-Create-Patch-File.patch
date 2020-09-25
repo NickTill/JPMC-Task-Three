@@ -1,0 +1,76 @@
+From 3a09f26231240b1a936105a25ae425fffdf8e2e0 Mon Sep 17 00:00:00 2001
+From: Nick Tillmann <ntillmann1439@gmail.com>
+Date: Fri, 25 Sep 2020 08:08:56 -0400
+Subject: [PATCH] Create Patch File
+
+---
+ src/Graph.tsx | 34 ++++++++++++++++++++--------------
+ 1 file changed, 20 insertions(+), 14 deletions(-)
+
+diff --git a/src/Graph.tsx b/src/Graph.tsx
+index 58fb997..51eef08 100644
+--- a/src/Graph.tsx
++++ b/src/Graph.tsx
+@@ -23,10 +23,13 @@ class Graph extends Component<IProps, {}> {
+     const elem = document.getElementsByTagName('perspective-viewer')[0] as unknown as PerspectiveViewerElement;
+ 
+     const schema = {
+-      stock: 'string',
+-      top_ask_price: 'float',
+-      top_bid_price: 'float',
+-      timestamp: 'date',
++      price_abc: 'float', // needed for calcuting the ratios
++      price_def: 'float',  // needed for calculating the ratios
++      ratio: 'float',   // this will show the ratio between stocks
++      timestamp: 'date',  // calcuation is w.r.t time
++      upper_bound: 'float',  // the upper threshold
++      lower_bound: 'float',  // the lower threshold
++      trigger_alert: 'float',  // the alert when the correlations starts become weak
+     };
+ 
+     if (window.perspective && window.perspective.worker()) {
+@@ -34,27 +37,30 @@ class Graph extends Component<IProps, {}> {
+     }
+     if (this.table) {
+       // Load the `table` in the `<perspective-viewer>` DOM reference.
++      // now we don't need column-pivots , as now we are tracking ratios
+       elem.load(this.table);
+-      elem.setAttribute('view', 'y_line');
+-      elem.setAttribute('column-pivots', '["stock"]');
++      elem.setAttribute('view', 'y_line'); // this is the view
+       elem.setAttribute('row-pivots', '["timestamp"]');
+-      elem.setAttribute('columns', '["top_ask_price"]');
++      elem.setAttribute('columns', '["ratio", "lower_bound", "upper_bound", "trigger_alert"]');
+       elem.setAttribute('aggregates', JSON.stringify({
+-        stock: 'distinctcount',
+-        top_ask_price: 'avg',
+-        top_bid_price: 'avg',
+-        timestamp: 'distinct count',
++        price_abc: 'float',
++        price_def: 'float',
++        ratio: 'float',
++        timestamp: 'date',
++        upper_bound: 'float',
++        lower_bound: 'float',
++        trigger_alert: 'float',
+       }));
+     }
+   }
+ 
+   componentDidUpdate() {
+     if (this.table) {
+-      this.table.update(
++      this.table.update([
+         DataManipulator.generateRow(this.props.data),
+-      );
++      ]);
+     }
+   }
+ }
+ 
+-export default Graph;
++export default Graph;
+\ No newline at end of file
+-- 
+2.24.3 (Apple Git-128)
+
